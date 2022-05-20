@@ -6,11 +6,13 @@ using UnityEngine;
 public class PlayerBallController : MonoBehaviour
 {
     public Rigidbody rb;
+    public bool modGravity = false;
+    public float artificialG = 1.5f;
     public bool isGrounded;
     public bool isAirbourne;
     public bool isClimbing;
     public float moveSpeed = 20f; 
-    public float climbFactor = 2f; //Factor to multiply moveSpeed by when climbing
+    public float climbFactor = 1.6f; //Factor to multiply moveSpeed by when climbing
     public float jumpForce = 100f; 
     public float brakeFactor = 1.2f; //Factor to multiply rb.velocity by when using brakes
     private float inputU, inputV;
@@ -18,8 +20,6 @@ public class PlayerBallController : MonoBehaviour
     private Vector3 input;
 
     [SerializeField] private float inputSensitivity;
-    
-    // Start is called before the first frame update
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -36,6 +36,9 @@ public class PlayerBallController : MonoBehaviour
     {
         
         input = SquareToCircle(new Vector3(inputU, 0, inputV));
+
+        //if(modGravity)
+        //    rb.AddForce(-Physics.gravity *(rb.mass * artificialG));
     
         if (Input.GetKeyDown(KeyCode.Space)){
             rb.AddForce(transform.up * jumpForce);
@@ -45,21 +48,22 @@ public class PlayerBallController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, aim, out hit) && isClimbing)
         {
-                Climb(hit);
+                Climb(hit); //XY plane relative to hit.normal
         }
         else if(isGrounded && isClimbing)
         {
+            Climb(hit); //XZ plane
+        }
+        else if(isGrounded && !isClimbing)
+        {
             Move();
         }
-        else if(!isGrounded && !isClimbing)
-        {}
         else
         {
            if(input != Vector3.zero)
            {
                 Move();
            }
-
         }
 
         if(input == Vector3.zero)
@@ -80,17 +84,17 @@ public class PlayerBallController : MonoBehaviour
     
     private void Move()
     {
+        modGravity = false;
         transform.forward = Vector3.forward;
         rb.AddForce(input*moveSpeed); //Move on X and Z (Horizontal plane)
     }
 
     private void Climb(RaycastHit hit)
     {
+        modGravity = true;
         transform.forward = -hit.normal;
-        
         rb.AddRelativeForce(new Vector3(inputU, inputV, 0)*moveSpeed*climbFactor); //Move on X an Y (Vertical Z plane)
 
-        //rb.position = Vector3.Lerp(rb.position, hit.point + hit.normal * 0.51f, 10f * Time.fixedDeltaTime);
     }
 
     void OnTriggerEnter(Collider collision)
