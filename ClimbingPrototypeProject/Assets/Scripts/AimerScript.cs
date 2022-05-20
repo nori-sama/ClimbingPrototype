@@ -28,9 +28,21 @@ public class AimerScript : MonoBehaviour
         //Smoothing for ray rotation
         float stepSmoothing = sensitivity * Time.fixedDeltaTime;
         
-         // Calculate a rotation a step closer to the target and applies rotation to this object 
-        // Should take the local direction and rotate it towards whatever the input direction is. Local space outputted as world space by function TransformDirection() and .forward
+         
+        //Takes the local direction and rotates it towards whatever the input direction is. 
+        //Local space outputted as world space by function TransformDirection(), in relation to Vector3 parameter.
+        //Transform.forward takes local space and outputs as world space
+
+        // Calculate a rotation a step closer to the target and applies rotation to this object
         Vector3 newDirection = Vector3.RotateTowards(transform.forward, transform.parent.TransformDirection(input), stepSmoothing, 0.0f);
+
+        /*
+        Transform.rotation represents world space rotation unlike transform.localRotation
+        Make sure you don't mix local and world space vectors
+        newDirection combines two local space vectors that are reperesented in world space. 
+        Transform.parent.up is the parent's local space (therefore passed down to the child 0) represented in world space.
+        Problems arise when you forget that these functions output in world space, unlike InverseTransformDirection() which outputs in local space
+        */
 
         //Matches rotation to desired rotation by world space rotation
         transform.rotation = Quaternion.LookRotation(newDirection, transform.parent.up);
