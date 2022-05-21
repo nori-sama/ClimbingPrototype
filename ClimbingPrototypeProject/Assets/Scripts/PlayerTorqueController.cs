@@ -22,7 +22,7 @@ public class PlayerTorqueController : MonoBehaviour
     void Update()
     {
         ProcessInputs();
-        Debug.DrawRay(transform.position, transform.forward * 10, Color.red); //Local x-axis
+        //Debug.DrawRay(transform.position, transform.forward * 10, Color.red); //Local x-axis
     }
 
     private void FixedUpdate()

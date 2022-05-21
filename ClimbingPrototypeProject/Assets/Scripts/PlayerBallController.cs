@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerBallController : MonoBehaviour
 {
     public Rigidbody rb;
+    public SphereCollider sc;
     public bool modGravity = false;
     public float artificialG = 1.5f;
     public bool isGrounded;
@@ -23,6 +24,7 @@ public class PlayerBallController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        sc = GetComponent<SphereCollider>();
     }
 
     // Update is called once per frame
@@ -34,6 +36,8 @@ public class PlayerBallController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        Debug.DrawRay(transform.position, Physics.gravity, Color.green);
+        Debug.DrawRay(transform.position, rb.velocity, Color.yellow);
         
         input = SquareToCircle(new Vector3(inputU, 0, inputV));
 
@@ -94,7 +98,7 @@ public class PlayerBallController : MonoBehaviour
         modGravity = true;
         transform.forward = -hit.normal;
         rb.AddRelativeForce(new Vector3(inputU, inputV, 0)*moveSpeed*climbFactor); //Move on X an Y (Vertical Z plane)
-
+        //if(hit.distance <= sc.radius && hit.collider.layer == 7)
     }
 
     void OnTriggerEnter(Collider collision)
